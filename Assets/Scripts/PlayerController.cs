@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -14,6 +13,7 @@ public class PlayerController : MonoBehaviour
     private float characterMove;
     private bool charFlipped;
     private bool grounded;
+    private bool playerDead;
 
     private Rigidbody2D playerRb;
     private Animator playerAnim;
@@ -30,20 +30,13 @@ public class PlayerController : MonoBehaviour
     {
         if (playerSpawned)
         {
-            playerMove();
-            playerJump();
-            playerFalling();
-        }
-
-        // Move to Level Manager later
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            playerSpawned = false;
-            SceneManager.LoadScene(0);
+            PlayerMove();
+            PlayerJump();
+            PlayerFalling();
         }
     }
 
-    private void playerMove()
+    private void PlayerMove()
     {
         // Used in FixedUpdate()
         characterMove = Input.GetAxisRaw("Horizontal");
@@ -64,7 +57,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void playerJump()
+    private void PlayerJump()
     {
         if (Input.GetKeyDown(KeyCode.Space) && grounded == true)
         {
@@ -74,7 +67,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void playerFalling()
+    private void PlayerFalling()
     {
         if (playerRb.velocity.y < -2)
         {
@@ -84,6 +77,30 @@ public class PlayerController : MonoBehaviour
         {
             playerAnim.SetBool("playerFalling", false);
         }
+    }
+
+    public void PlayerDeath()
+    {
+        if (!playerDead)
+        {
+            playerDead = true;
+            playerRb.simulated = false;
+            playerSpawned = false;
+            StartCoroutine(PlayerDeathRoutine());
+        }
+    }
+
+    private IEnumerator PlayerDeathRoutine()
+    {
+        playerAnim.SetTrigger("playerDeath");
+        yield return null;
+
+        yield return new WaitForSeconds(playerAnim.GetCurrentAnimatorStateInfo(0).length);
+
+        playerRenderer.enabled = false;
+
+        yield return new WaitForSeconds(1);
+        LevelManager.levelManagerInstance.RestartLevel();
     }
 
     private void FixedUpdate()
@@ -105,6 +122,14 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             grounded = false;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Finish"))
+        {
+            LevelManager.levelManagerInstance.AttemptFinish();
         }
     }
 }
