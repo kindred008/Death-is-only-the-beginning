@@ -28,48 +28,67 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (playerRb.velocity.y < -2)
-        {
-            playerAnim.SetBool("playerFalling", true);
-        } else
-        {
-            playerAnim.SetBool("playerFalling", false);
-        }
-
         if (playerSpawned)
         {
-            characterMove = Input.GetAxisRaw("Horizontal");
-            /*if (playerAnim.GetBool("playerFalling"))
-                characterMove *= 0.5f;*/
-
-            playerAnim.SetFloat("playerSpeed", Mathf.Abs(characterMove));
-
-            if (characterMove > 0 && charFlipped)
-            {
-                playerRenderer.flipX = false;
-                charFlipped = false;
-            }
-            else if (characterMove < 0 && !charFlipped)
-            {
-                playerRenderer.flipX = true;
-                charFlipped = true;
-            }
+            playerMove();
+            playerJump();
+            playerFalling();
         }
 
+        // Move to Level Manager later
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            playerSpawned = false;
+            SceneManager.LoadScene(0);
+        }
+    }
+
+    private void playerMove()
+    {
+        // Used in FixedUpdate()
+        characterMove = Input.GetAxisRaw("Horizontal");
+        /*if (playerAnim.GetBool("playerFalling"))
+            characterMove *= 0.5f;*/
+
+        playerAnim.SetFloat("playerSpeed", Mathf.Abs(characterMove));
+
+        if (characterMove > 0 && charFlipped)
+        {
+            playerRenderer.flipX = false;
+            charFlipped = false;
+        }
+        else if (characterMove < 0 && !charFlipped)
+        {
+            playerRenderer.flipX = true;
+            charFlipped = true;
+        }
+    }
+
+    private void playerJump()
+    {
         if (Input.GetKeyDown(KeyCode.Space) && grounded == true)
         {
             playerRb.AddForce(Vector2.up * playerJumpSpeed, ForceMode2D.Impulse);
             grounded = false;
             playerAnim.SetBool("playerJumping", true);
         }
+    }
 
-        if (Input.GetKeyDown(KeyCode.R))
+    private void playerFalling()
+    {
+        if (playerRb.velocity.y < -2)
         {
-            playerSpawned = false;
-            SceneManager.LoadScene(0);
+            playerAnim.SetBool("playerFalling", true);
         }
+        else
+        {
+            playerAnim.SetBool("playerFalling", false);
+        }
+    }
 
-        Debug.Log(grounded);
+    private void FixedUpdate()
+    {
+        playerRb.velocity = new Vector2(characterMove * playerSpeed, playerRb.velocity.y);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -81,8 +100,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    private void OnCollisionExit2D(Collision2D collision)
     {
-        playerRb.velocity = new Vector2(characterMove * playerSpeed, playerRb.velocity.y);
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            grounded = false;
+        }
     }
 }
