@@ -4,16 +4,25 @@ using UnityEngine;
 
 public class Trap : MonoBehaviour
 {
-    PlayerController playerScript;
+    [SerializeField] string trapName;
+
+    private PlayerController playerScript;
+    private LevelManager levelManager;
+
+    private void Start()
+    {
+        levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+
+        levelManager.AddDeathToDictionary(trapName);
+    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-
         if (collision.gameObject.CompareTag("Player"))
         {
             playerScript = collision.gameObject.GetComponent<PlayerController>();
             playerScript.PlayerDeath();
-            LevelManager.levelManagerInstance.UpdateDeathDictionary("Spike");
+            levelManager.UpdateDeathDictionary(trapName);
         }
     }
 }

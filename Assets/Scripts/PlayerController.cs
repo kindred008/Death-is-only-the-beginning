@@ -19,11 +19,18 @@ public class PlayerController : MonoBehaviour
     private Animator playerAnim;
     private SpriteRenderer playerRenderer;
 
+    private LevelManager levelManager;
+
     private void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
         playerAnim = GetComponent<Animator>();
         playerRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    private void Start()
+    {
+        levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
     }
 
     private void Update()
@@ -34,6 +41,11 @@ public class PlayerController : MonoBehaviour
             PlayerJump();
             PlayerFalling();
         }
+    }
+
+    private void FixedUpdate()
+    {
+        playerRb.velocity = new Vector2(characterMove * playerSpeed, playerRb.velocity.y);
     }
 
     private void PlayerMove()
@@ -79,6 +91,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void PlayerSpawn()
+    {
+        transform.position = levelManager.spawnPoint.position;
+        playerDead = false;
+        playerRb.simulated = true;
+        playerRenderer.enabled = true;
+        playerAnim.Rebind();
+        playerAnim.Update(0f);
+    }
+
     public void PlayerDeath()
     {
         if (!playerDead)
@@ -100,12 +122,8 @@ public class PlayerController : MonoBehaviour
         playerRenderer.enabled = false;
 
         yield return new WaitForSeconds(1);
-        LevelManager.levelManagerInstance.RestartLevel();
-    }
 
-    private void FixedUpdate()
-    {
-        playerRb.velocity = new Vector2(characterMove * playerSpeed, playerRb.velocity.y);
+        PlayerSpawn();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -129,7 +147,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.CompareTag("Finish"))
         {
-            LevelManager.levelManagerInstance.AttemptFinish();
+            levelManager.AttemptFinish();
         }
     }
 }
