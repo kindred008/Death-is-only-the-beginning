@@ -121,7 +121,7 @@ public class PlayerController : MonoBehaviour
 
         playerRenderer.enabled = false;
 
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.5f);
 
         PlayerSpawn();
     }
@@ -147,7 +147,12 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.CompareTag("Finish"))
         {
-            levelManager.AttemptFinish();
+            if (levelManager.AttemptFinish())
+            {
+                characterMove = 0;
+                playerSpawned = false;
+                playerAnim.SetTrigger("levelFinished");
+            }
         }
     }
 }

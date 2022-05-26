@@ -58,11 +58,21 @@ public class LevelManager : MonoBehaviour
         deathScoreText.text = "Deaths: " + currentDeaths + "/" + deathPotential;
     }
 
-    public void AttemptFinish()
+    public bool AttemptFinish()
     {
         if (currentDeaths == deathPotential)
         {
             levelCompleteText.text = "Level Complete";
+            StartCoroutine(LevelFinished());
+            return true;
         }
+
+        return false;
+    }
+
+    private IEnumerator LevelFinished()
+    {
+        yield return new WaitForSeconds(3);
+        SceneManager.LoadSceneAsync(0);
     }
 }
