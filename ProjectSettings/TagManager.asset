@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
+  - Checkpoint
   layers:
   - Default
   - TransparentFX
@@ -44,6 +45,9 @@ TagManager:
     locked: 0
   - name: Background
     uniqueID: 1707206315
+    locked: 0
+  - name: Trap
+    uniqueID: 2990909107
     locked: 0
   - name: Terrain
     uniqueID: 1674517487

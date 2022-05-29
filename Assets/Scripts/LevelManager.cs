@@ -15,7 +15,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI deathScoreText;
     [SerializeField] TextMeshProUGUI levelCompleteText;
 
-    public Transform spawnPoint;
+    public Transform currentCheckpoint;
 
     [HideInInspector] public GameObject player;
     [SerializeField] GameObject playerPrefab;
@@ -28,8 +28,7 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        spawnPoint = GameObject.Find("SpawnPoint").transform;
-        player = Instantiate(playerPrefab, spawnPoint.position, playerPrefab.transform.rotation);
+        player = Instantiate(playerPrefab, currentCheckpoint.position, playerPrefab.transform.rotation);
         GetComponent<FallDeath>().enabled = true;
     }
 
@@ -56,6 +55,11 @@ public class LevelManager : MonoBehaviour
     private void UpdateDeathScore()
     {
         deathScoreText.text = "Deaths: " + currentDeaths + "/" + deathPotential;
+    }
+
+    public void NewCheckPoint(Transform checkpoint)
+    {
+        currentCheckpoint = checkpoint;
     }
 
     public bool AttemptFinish()

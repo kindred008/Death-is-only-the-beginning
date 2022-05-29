@@ -52,8 +52,6 @@ public class PlayerController : MonoBehaviour
     {
         // Used in FixedUpdate()
         characterMove = Input.GetAxisRaw("Horizontal");
-        /*if (playerAnim.GetBool("playerFalling"))
-            characterMove *= 0.5f;*/
 
         playerAnim.SetFloat("playerSpeed", Mathf.Abs(characterMove));
 
@@ -93,7 +91,7 @@ public class PlayerController : MonoBehaviour
 
     public void PlayerSpawn()
     {
-        transform.position = levelManager.spawnPoint.position;
+        transform.position = levelManager.currentCheckpoint.position;
         playerDead = false;
         playerRb.simulated = true;
         playerRenderer.enabled = true;
@@ -108,6 +106,7 @@ public class PlayerController : MonoBehaviour
             playerDead = true;
             playerRb.simulated = false;
             playerSpawned = false;
+            characterMove = 0;
             StartCoroutine(PlayerDeathRoutine());
         }
     }
@@ -135,12 +134,33 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void bounce(float bounceStrength)
+    {
+        playerRb.AddForce(Vector2.up * bounceStrength, ForceMode2D.Impulse);
+        playerAnim.SetBool("playerJumping", false);
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            grounded = true;
+            playerAnim.SetBool("playerJumping", false);
+        }
+    }
+
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            grounded = false;
+            StartCoroutine(LeaveGround());
         }
+    }
+
+    private IEnumerator LeaveGround()
+    {
+        yield return new WaitForSeconds(0.1f);
+        grounded = false;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -153,6 +173,11 @@ public class PlayerController : MonoBehaviour
                 playerSpawned = false;
                 playerAnim.SetTrigger("levelFinished");
             }
+        }
+
+        if (collision.CompareTag("Checkpoint"))
+        {
+            levelManager.NewCheckPoint(collision.transform);
         }
     }
 }

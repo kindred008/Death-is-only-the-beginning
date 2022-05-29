@@ -5,15 +5,23 @@ using UnityEngine;
 public class FallDeath : MonoBehaviour
 {
     [SerializeField] float mapBottomLimit;
+    [SerializeField] bool fallEnabled;
 
     private LevelManager levelManager;
     private GameObject player;
 
     private void Start()
     {
-        levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
-        player = levelManager.player;
-        levelManager.AddDeathToDictionary("FallDeath");
+        if (!fallEnabled)
+        {
+            this.enabled = false;
+        }
+        else 
+        {
+            levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+            player = levelManager.player;
+            levelManager.AddDeathToDictionary("FallDeath");
+        }
     }
 
     private void Update()
