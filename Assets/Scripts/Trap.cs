@@ -36,13 +36,14 @@ public class Trap : MonoBehaviour
 
     private IEnumerator MovingTrap()
     {
+		Vector2 direction;
         while (true)
         {
             foreach (Transform waypoint in waypoints)
             {
                 while ((waypoint.transform.position - transform.position).sqrMagnitude > 0.1)
                 {
-                    Vector2 direction = (waypoint.transform.position - transform.position).normalized;
+                    direction = (waypoint.transform.position - transform.position).normalized;
                     transform.Translate(direction * Time.deltaTime * trapMoveSpeed);
                     yield return null;
                 }
